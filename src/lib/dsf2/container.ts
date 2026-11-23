@@ -43,6 +43,27 @@ function readChain(raw: Uint8Array, start: number, n: number, byFirst: () => Map
   return sectors.length ? { sectors, indexes } : null;
 }
 
+export type SectionKind = "xml" | "binary";
+
+export interface Dsf2Section {
+  id: number; // primo settore indice
+  sectors: number[];
+  indexes: number[]; // catena dei settori indice
+  checks: number[];
+  kind: SectionKind;
+  rootTag: string;
+  title: string;
+  capacity: number;
+  originalXml?: string;
+  bytes: Uint8Array;
+}
+
+export interface Dsf2File {
+  name: string;
+  raw: Uint8Array;
+  sections: Dsf2Section[];
+}
+
 const u32 = (b: Uint8Array, off: number) =>
   (b[off]! | (b[off + 1]! << 8) | (b[off + 2]! << 16) | (b[off + 3]! << 24)) >>> 0;
 
