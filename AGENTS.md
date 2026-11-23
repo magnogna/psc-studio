@@ -28,3 +28,8 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+- All .dsf2 reading/writing lives in `src/lib/dsf2/container.ts` (reverse-engineered format: 0x800 sectors at 0x138, 2016-byte payload, index-sector chains, 1 MB zlib chunks); everything runs client-side so files never leave the user's browser.
+- Edits mutate per-section XML DOMs via `store.ts` `mutate()`; only dirty sections are re-serialized so untouched sections stay byte-identical.
+- Archive insertion (`insert.ts`) copies items plus linked children across sections via (TpPrnt, IdPrnt) and assigns new IdND values.

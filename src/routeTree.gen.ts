@@ -10,33 +10,134 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ArchivioRouteImport } from './routes/archivio'
+import { Route as DocumentoRouteImport } from './routes/documento'
+import { Route as StampaRouteImport } from './routes/stampa'
+import { Route as DocumentoIndexRouteImport } from './routes/documento.index'
+import { Route as DocumentoGanttRouteImport } from './routes/documento.gantt'
+import { Route as DocumentoInserisciRouteImport } from './routes/documento.inserisci'
+import { Route as DocumentoRischiRouteImport } from './routes/documento.rischi'
+import { Route as DocumentoSezioneIdRouteImport } from './routes/documento.sezione.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ArchivioRoute = ArchivioRouteImport.update({
+  id: '/archivio',
+  path: '/archivio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocumentoRoute = DocumentoRouteImport.update({
+  id: '/documento',
+  path: '/documento',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StampaRoute = StampaRouteImport.update({
+  id: '/stampa',
+  path: '/stampa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocumentoIndexRoute = DocumentoIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DocumentoRoute,
+} as any)
+const DocumentoGanttRoute = DocumentoGanttRouteImport.update({
+  id: '/gantt',
+  path: '/gantt',
+  getParentRoute: () => DocumentoRoute,
+} as any)
+const DocumentoInserisciRoute = DocumentoInserisciRouteImport.update({
+  id: '/inserisci',
+  path: '/inserisci',
+  getParentRoute: () => DocumentoRoute,
+} as any)
+const DocumentoRischiRoute = DocumentoRischiRouteImport.update({
+  id: '/rischi',
+  path: '/rischi',
+  getParentRoute: () => DocumentoRoute,
+} as any)
+const DocumentoSezioneIdRoute = DocumentoSezioneIdRouteImport.update({
+  id: '/sezione/$id',
+  path: '/sezione/$id',
+  getParentRoute: () => DocumentoRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/archivio': typeof ArchivioRoute
+  '/documento': typeof DocumentoRouteWithChildren
+  '/stampa': typeof StampaRoute
+  '/documento/gantt': typeof DocumentoGanttRoute
+  '/documento/inserisci': typeof DocumentoInserisciRoute
+  '/documento/rischi': typeof DocumentoRischiRoute
+  '/documento/': typeof DocumentoIndexRoute
+  '/documento/sezione/$id': typeof DocumentoSezioneIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/archivio': typeof ArchivioRoute
+  '/stampa': typeof StampaRoute
+  '/documento/gantt': typeof DocumentoGanttRoute
+  '/documento/inserisci': typeof DocumentoInserisciRoute
+  '/documento/rischi': typeof DocumentoRischiRoute
+  '/documento': typeof DocumentoIndexRoute
+  '/documento/sezione/$id': typeof DocumentoSezioneIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/archivio': typeof ArchivioRoute
+  '/documento': typeof DocumentoRouteWithChildren
+  '/stampa': typeof StampaRoute
+  '/documento/gantt': typeof DocumentoGanttRoute
+  '/documento/inserisci': typeof DocumentoInserisciRoute
+  '/documento/rischi': typeof DocumentoRischiRoute
+  '/documento/': typeof DocumentoIndexRoute
+  '/documento/sezione/$id': typeof DocumentoSezioneIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/archivio'
+    | '/documento'
+    | '/stampa'
+    | '/documento/gantt'
+    | '/documento/inserisci'
+    | '/documento/rischi'
+    | '/documento/'
+    | '/documento/sezione/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/archivio'
+    | '/stampa'
+    | '/documento/gantt'
+    | '/documento/inserisci'
+    | '/documento/rischi'
+    | '/documento'
+    | '/documento/sezione/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/archivio'
+    | '/documento'
+    | '/stampa'
+    | '/documento/gantt'
+    | '/documento/inserisci'
+    | '/documento/rischi'
+    | '/documento/'
+    | '/documento/sezione/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ArchivioRoute: typeof ArchivioRoute
+  DocumentoRoute: typeof DocumentoRouteWithChildren
+  StampaRoute: typeof StampaRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +149,90 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/archivio': {
+      id: '/archivio'
+      path: '/archivio'
+      fullPath: '/archivio'
+      preLoaderRoute: typeof ArchivioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/documento': {
+      id: '/documento'
+      path: '/documento'
+      fullPath: '/documento'
+      preLoaderRoute: typeof DocumentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stampa': {
+      id: '/stampa'
+      path: '/stampa'
+      fullPath: '/stampa'
+      preLoaderRoute: typeof StampaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/documento/': {
+      id: '/documento/'
+      path: '/'
+      fullPath: '/documento/'
+      preLoaderRoute: typeof DocumentoIndexRouteImport
+      parentRoute: typeof DocumentoRoute
+    }
+    '/documento/gantt': {
+      id: '/documento/gantt'
+      path: '/gantt'
+      fullPath: '/documento/gantt'
+      preLoaderRoute: typeof DocumentoGanttRouteImport
+      parentRoute: typeof DocumentoRoute
+    }
+    '/documento/inserisci': {
+      id: '/documento/inserisci'
+      path: '/inserisci'
+      fullPath: '/documento/inserisci'
+      preLoaderRoute: typeof DocumentoInserisciRouteImport
+      parentRoute: typeof DocumentoRoute
+    }
+    '/documento/rischi': {
+      id: '/documento/rischi'
+      path: '/rischi'
+      fullPath: '/documento/rischi'
+      preLoaderRoute: typeof DocumentoRischiRouteImport
+      parentRoute: typeof DocumentoRoute
+    }
+    '/documento/sezione/$id': {
+      id: '/documento/sezione/$id'
+      path: '/sezione/$id'
+      fullPath: '/documento/sezione/$id'
+      preLoaderRoute: typeof DocumentoSezioneIdRouteImport
+      parentRoute: typeof DocumentoRoute
+    }
   }
 }
 
+interface DocumentoRouteChildren {
+  DocumentoGanttRoute: typeof DocumentoGanttRoute
+  DocumentoInserisciRoute: typeof DocumentoInserisciRoute
+  DocumentoRischiRoute: typeof DocumentoRischiRoute
+  DocumentoIndexRoute: typeof DocumentoIndexRoute
+  DocumentoSezioneIdRoute: typeof DocumentoSezioneIdRoute
+}
+
+const DocumentoRouteChildren: DocumentoRouteChildren = {
+  DocumentoGanttRoute: DocumentoGanttRoute,
+  DocumentoInserisciRoute: DocumentoInserisciRoute,
+  DocumentoRischiRoute: DocumentoRischiRoute,
+  DocumentoIndexRoute: DocumentoIndexRoute,
+  DocumentoSezioneIdRoute: DocumentoSezioneIdRoute,
+}
+
+const DocumentoRouteWithChildren = DocumentoRoute._addFileChildren(
+  DocumentoRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ArchivioRoute: ArchivioRoute,
+  DocumentoRoute: DocumentoRouteWithChildren,
+  StampaRoute: StampaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
