@@ -3,11 +3,12 @@ import { useMemo, useState } from "react";
 import { ArrowLeft, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { GROUPS, ENT, PROB, attrLabel, riskLevel, toneCls } from "@/lib/dsf2/catalog";
+import { GROUPS, ENT, PROB, riskLevel, toneCls } from "@/lib/dsf2/catalog";
 import { isRtf, rtfToText } from "@/lib/dsf2/rtf";
 import { getDoc, sectionByTag, useAutoRestore } from "@/lib/dsf2/store";
 import { addDays, fmtIt, ganttRows } from "@/lib/dsf2/gantt";
 import { riskRows } from "@/lib/dsf2/risks";
+import { PscReport } from "@/components/dsf2/PscReport";
 import { GanttChart } from "@/components/dsf2/GanttChart";
 
 export const Route = createFileRoute("/stampa")({
@@ -16,7 +17,6 @@ export const Route = createFileRoute("/stampa")({
 });
 
 const PARTS = [
-  { key: "anagrafica", label: "Anagrafica" },
   { key: "relazione", label: "Relazione PSC" },
   { key: "fascicolo", label: "Fascicolo dell'opera" },
   { key: "gantt", label: "Cronoprogramma (Gantt)" },
@@ -44,10 +44,6 @@ function StampaPage() {
   const risks = useMemo(() => riskRows(), [version]);
   if (!file && !ready) return <p className="p-8 text-sm text-muted-foreground">Caricamento…</p>;
   if (!file) return <div className="p-8"><Link to="/" className="text-primary underline">Apri un documento</Link></div>;
-  const lav = sectionByTag("CollectionLavoro");
-  const lavoro = lav ? getDoc(lav.id)?.querySelector("ItemLavoro") : null;
-  const people = (tag: string, sel: string) => { const s = sectionByTag(tag); return s ? Array.from(getDoc(s.id)?.querySelectorAll(`${sel}[IsRoot='false']`) ?? []) : []; };
-  const relGroups = GROUPS.filter((g) => ["documentazione", "psc"].includes(g.key));
   const fasc = GROUPS.find((g) => g.key === "fascicolo")!;
   const has = (p: Part) => parts.has(p);
 
@@ -64,35 +60,7 @@ function StampaPage() {
       </div>
 
       <article className="mx-auto max-w-[800px] bg-card px-10 py-12 font-serif text-[13px] leading-relaxed text-card-foreground print:max-w-none print:px-0 print:py-0">
-        <header className="border-b-2 border-foreground pb-6 text-center">
-          <p className="font-sans text-xs uppercase tracking-[0.25em]">Piano di sicurezza e di coordinamento</p>
-          <h1 className="mt-3 font-sans text-2xl font-semibold">{lavoro?.getAttribute("Ogg") || file.name}</h1>
-          <p className="mt-2">{[lavoro?.getAttribute("Indir"), lavoro?.getAttribute("Citta"), lavoro?.getAttribute("Prv")].filter(Boolean).join(", ")}</p>
-        </header>
-
-        {has("anagrafica") && (
-          <section className="mt-8">
-            <h2 className="font-sans text-lg font-semibold uppercase">Anagrafica</h2>
-            {lavoro && <table className="mt-3 w-full"><tbody>{["NatOper", "Ogg", "Imp", "DtInzLa", "DFinLa", "DuGG", "UoGG"].map((k) => <tr key={k} className="border-b border-border"><td className="w-48 py-1 pr-3 font-sans text-xs text-muted-foreground">{attrLabel(k)}</td><td>{lavoro.getAttribute(k)}</td></tr>)}</tbody></table>}
-            {[["Committenti", "CollectionComm", "ItemCommittenti"], ["Responsabili", "CollectionResp", "ItemResponsabili"], ["Imprese", "CollectionImpresa", "ItemImpresa"]].map(([label, tag, sel]) => (
-              <div key={tag} className="mt-4">
-                <h3 className="font-sans text-sm font-semibold">{label}</h3>
-                {people(tag!, sel!).map((p, i) => (
-                  <p key={i} className="mt-1"><strong>{p.getAttribute("Titolo")}:</strong> {[p.getAttribute("RagSociale"), [p.getAttribute("PersNome"), p.getAttribute("PersCogn")].filter(Boolean).join(" "), p.getAttribute("Indir"), p.getAttribute("Citta")].filter(Boolean).join(" · ")}</p>
-                ))}
-              </div>
-            ))}
-          </section>
-        )}
-
-        {has("relazione") && relGroups.map((g) => (
-          <section key={g.key} className="print-page-break mt-10">
-            <h2 className="font-sans text-lg font-semibold uppercase">{g.label}</h2>
-            {g.tags.map((t) => texts(t).map((x, i) => (
-              <div key={t + i} className="mt-4"><h3 className="font-sans text-sm font-semibold">{x.title}</h3><p className="mt-1 whitespace-pre-line text-justify">{x.body}</p></div>
-            )))}
-          </section>
-        ))}
+        {has("relazione") && <PscReport />}
 
         {has("fascicolo") && (
           <section className="print-page-break mt-10">
