@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { GROUPS, ENT, PROB, riskLevel, toneCls } from "@/lib/dsf2/catalog";
 import { isRtf, rtfToText } from "@/lib/dsf2/rtf";
+import { stripHints } from "@/lib/dsf2/report";
 import { getDoc, sectionByTag, useAutoRestore } from "@/lib/dsf2/store";
 import { addDays, fmtIt, ganttRows } from "@/lib/dsf2/gantt";
 import { riskRows } from "@/lib/dsf2/risks";
@@ -31,7 +32,7 @@ function texts(tag: string) {
   const out: { title: string; body: string }[] = [];
   root.querySelectorAll("*").forEach((el) => {
     if (!el.tagName.startsWith("Item") || el.getAttribute("IsRoot") === "true") return;
-    const body = Array.from(el.attributes).filter((a) => isRtf(a.value)).map((a) => rtfToText(a.value)).filter(Boolean).join("\n\n");
+    const body = Array.from(el.attributes).filter((a) => isRtf(a.value)).map((a) => stripHints(rtfToText(a.value))).filter(Boolean).join("\n\n");
     if (body) out.push({ title: el.getAttribute("Titolo") ?? "", body });
   });
   return out;
