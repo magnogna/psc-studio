@@ -16,3 +16,10 @@ describe("report graph", () => {
     expect(g.kids(lav[0]!, TP.rischio).map(title)).toEqual(["Rumore"]);
   });
 });
+
+describe("note di compilazione", () => {
+  it("rimuove i testi tra $CANCELLARE$", async () => {
+    const { stripHints } = await import("./report");
+    expect(stripHints("$CANCELLARE$\nnota\n$CANCELLARE$\nPronto Soccorso tel. 118")).toBe("Pronto Soccorso tel. 118");
+  });
+});

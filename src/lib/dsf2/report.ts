@@ -9,11 +9,13 @@ export function text(el: Element | null | undefined, ...attrs: string[]): string
   if (!el) return "";
   for (const a of attrs.length ? attrs : ["RTF", "RTFPos"]) {
     const v = el.getAttribute(a);
-    if (v && isRtf(v)) { const t = rtfToText(v).trim(); if (t) return t; }
+    if (v && isRtf(v)) { const t = stripHints(rtfToText(v)); if (t) return t; }
     else if (v && a !== "RTF" && a !== "RTFPos") return v;
   }
   return "";
 }
+/** CerTus non stampa le note di compilazione racchiuse tra $CANCELLARE$. */
+export const stripHints = (s: string) => s.replace(/\$CANCELLARE\$[\s\S]*?\$CANCELLARE\$/g, "").replace(/\n{3,}/g, "\n\n").trim();
 export const title = (el: Element) => (el.getAttribute("Titolo") ?? "").trim();
 const ord = (a: Element, b: Element) => Number(a.getAttribute("IdOrdine") ?? 0) - Number(b.getAttribute("IdOrdine") ?? 0);
 

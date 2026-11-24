@@ -114,7 +114,10 @@ export function PscReport({ cover = true, body = true }: { cover?: boolean; body
   const usesMac = (t: string) => (f: Element) => g.kids(f, TP.macchina).some((x) => title(x) === t);
   // rischi delle lavorazioni (esposizione dei lavoratori e misure sul rischio)
   const rischiLav = fasi.flatMap((f) => lavOf(f).flatMap((w) => g.kids(w, TP.rischio).map((r) => ({ f, r }))));
-  const rischi = uniq(rischiLav.map((x) => x.r), title).sort(alpha);
+  const rname = (r: Element) => title(r).replace(/\s+per\s+".*$/, "");
+  const rischi = uniq(rischiLav.map((x) => x.r), rname).sort((x, y) => rname(x).localeCompare(rname(y), "it"));
+  const coord = Array.from(root("CollectionCoordinamentoGen")?.querySelectorAll("ItemCoordGenerale") ?? []).filter((e) => text(e));
+  const emerg = coord.filter((e) => /emergenz/i.test(title(e)));
   const sonori = [...attrezzi.map((x) => ({ x, k: "ATTREZZATURA", f: fasiDi(usesAtt(title(x))) })), ...macchine.map((x) => ({ x, k: "MACCHINA", f: fasiDi(usesMac(title(x))) }))].filter(({ x }) => Number(x.getAttribute("EmissioneRM")) > 0);
 
   const area = (sel: string) => items("AreaCantiere", sel);
@@ -174,12 +177,12 @@ export function PscReport({ cover = true, body = true }: { cover?: boolean; body
       </Chapter>
       <Chapter t="Rischi individuati nelle Lavorazioni e relative misure preventive e protettive">
         <p className="font-sans text-xs italic">rischi derivanti dalle lavorazioni e dall'uso di macchine ed attrezzi</p>
-        <Lbl>Elenco dei rischi:</Lbl>{list(rischi)}
+        <Lbl>Elenco dei rischi:</Lbl><ol className="ml-5">{rischi.map((r, i) => <li key={i}>{i + 1}) {rname(r)}{i === rischi.length - 1 ? "." : ";"}</li>)}</ol>
         {rischi.map((r, i) => {
-          const occ = rischiLav.filter((x) => title(x.r) === title(r));
+          const occ = rischiLav.filter((x) => rname(x.r) === rname(r));
           return (
             <div key={i} className="mt-5">
-              <h4 className="font-sans text-sm font-bold">RISCHIO: "{title(r)}"</h4>
+              <h4 className="font-sans text-sm font-bold">RISCHIO: "{rname(r)}"</h4>
               {text(r) && <><p className="mt-1 font-sans text-xs italic">Descrizione del Rischio:</p><P>{text(r)}</P></>}
               <Lbl>MISURE PREVENTIVE e PROTETTIVE:</Lbl>
               <p>a) Nelle lavorazioni: {uniq(occ.map((x) => title(x.f)), (s) => s).join("; ")};</p>
@@ -196,9 +199,10 @@ export function PscReport({ cover = true, body = true }: { cover?: boolean; body
             <tbody>{sonori.map(({ x, f }, i) => <tr key={i} className="border-b border-border align-top"><td className="py-1 pr-2">{title(x)}</td><td className="pr-2">{f.join("; ")}.</td><td>{Number(x.getAttribute("EmissioneRM")).toFixed(1)}</td><td>{x.getAttribute("RifSchedaRM")}</td></tr>)}</tbody></table>
         </Chapter>
       )}
-      {allRootText("CollectionCoordinamentoGen").length > 0 && <Chapter t="Coordinamento generale" norm="punto 2.1.2, lettere e, f, g, Allegato XV">{Array.from(root("CollectionCoordinamentoGen")?.querySelectorAll("ItemCoordGenerale") ?? []).filter((e) => text(e)).map((e, i) => <div key={i}><h4 className="mt-3 font-sans text-sm font-bold">{title(e)}</h4><P>{text(e)}</P></div>)}</Chapter>}
+      {coord.filter((e) => !emerg.includes(e)).length > 0 && <Chapter t="Coordinamento generale" norm="punto 2.1.2, lettere e, f, g, Allegato XV">{coord.filter((e) => !emerg.includes(e)).map((e, i) => <div key={i}><h4 className="mt-3 font-sans text-sm font-bold">{title(e)}</h4><P>{text(e)}</P></div>)}</Chapter>}
+      <Chapter t="Organizzazione servizio di pronto soccorso, antincendio ed evacuazione dei lavoratori" norm="punto 2.1.2, lettera h, Allegato XV">{emerg.map((e, i) => <P key={i}>{text(e)}</P>)}<Lbl>Numeri di telefono delle emergenze:</Lbl><p>Comando Vvf chiamate per soccorso: tel. 115</p><p>Pronto Soccorso tel. 118</p></Chapter>
       {allRootText("CollectionFormazioneLav").length > 0 && <Chapter t="Informazione e formazione dei lavoratori">{allRootText("CollectionFormazioneLav").map((t, i) => <P key={i}>{t}</P>)}</Chapter>}
-      {allRootText("CollectionOprPrvMacImp").length > 0 && <Chapter t="Organizzazione servizio di pronto soccorso, antincendio ed evacuazione dei lavoratori" norm="punto 2.1.2, lettera h, Allegato XV">{allRootText("CollectionOprPrvMacImp").map((t, i) => <P key={i}>{t}</P>)}</Chapter>}
+      {allRootText("CollectionOprPrvMacImp").length > 0 && <Chapter t="Opere provvisionali, macchine e impianti">{allRootText("CollectionOprPrvMacImp").map((t, i) => <P key={i}>{t}</P>)}</Chapter>}
       <Chapter t="Conclusioni generali">{allRootText("CollectionConclusioniGen").map((t, i) => <P key={i}>{t}</P>)}</Chapter>
     </>
   );
